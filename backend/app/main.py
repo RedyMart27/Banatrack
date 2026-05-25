@@ -1,5 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.database import engine
+from app import models
+
+# Crea las tablas en la base de datos si no existen
+models.Lote.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="BanaTrack API",
@@ -7,7 +12,6 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Permitir que el frontend se conecte al backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
