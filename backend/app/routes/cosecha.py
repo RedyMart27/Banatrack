@@ -48,6 +48,12 @@ def registrar_cosecha(body: CosechaCreate, db: Session = Depends(get_db)):
     )
 
 
+@router.get("/{lote_id}", response_model=list[CosechaResponse])
+def obtener_cosechas(lote_id: int, db: Session = Depends(get_db)):
+    service = CosechaService(db)
+    return service.obtener_cosechas_por_lote(lote_id)
+
+
 @router.get("/{lote_id}/descuento", response_model=DescuentoResponse)
 def calcular_descuento(
     lote_id: int, fecha: date = Query(...), db: Session = Depends(get_db)

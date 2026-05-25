@@ -4,7 +4,6 @@ from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 
 from app.models.cosecha import Cosecha
-from app.models.lote import COLORES_CINTA
 from app.repositories.cosecha import CosechaRepository
 from app.services.embolse import _color_por_semana
 
@@ -39,6 +38,14 @@ class CosechaService:
             .where(Embolse.fecha == fecha)
         )
         return self.db.scalar(stmt) or 0
+
+    def obtener_cosechas_por_lote(self, lote_id: int) -> list[Cosecha]:
+        stmt = (
+            select(Cosecha)
+            .where(Cosecha.lote_id == lote_id)
+            .order_by(Cosecha.fecha.desc())
+        )
+        return list(self.db.scalars(stmt).all())
 
     def calcular_descuento(self, lote_id: int, fecha: date) -> int | None:
         embolse_total = self._total_embolse(lote_id, fecha)

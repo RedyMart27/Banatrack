@@ -4,13 +4,26 @@ from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 
 from app.models.embolse import Embolse
-from app.models.lote import COLORES_CINTA
 from app.repositories.embolse import EmbolseRepository
+
+CALENDARIO_BANASAN = {
+    1: "VE", 2: "AM", 3: "BL", 4: "AZ", 5: "RO",
+    6: "CA", 7: "NE", 8: "NA", 9: "VE", 10: "AM",
+    11: "BL", 12: "AZ", 13: "RO", 14: "CA", 15: "NE",
+    16: "NA", 17: "VE", 18: "AM", 19: "BL", 20: "AZ",
+    21: "RO", 22: "CA", 23: "NE", 24: "NA", 25: "VE",
+    26: "AM", 27: "BL", 28: "AZ", 29: "RO", 30: "CA",
+    31: "CA", 32: "NA", 33: "VE", 34: "AM", 35: "BL",
+    36: "AZ", 37: "RO", 38: "CA", 39: "NE", 40: "NA",
+    41: "VE", 42: "AM", 43: "BL", 44: "AZ", 45: "RO",
+    46: "CA", 47: "NE", 48: "NA", 49: "VE", 50: "AM",
+    51: "BL", 52: "AZ",
+}
 
 
 def _color_por_semana(fecha: date) -> str:
     semana = fecha.isocalendar()[1]
-    return COLORES_CINTA[(semana - 1) % len(COLORES_CINTA)]
+    return CALENDARIO_BANASAN[semana]
 
 
 class EmbolseService:
