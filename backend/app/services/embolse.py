@@ -6,24 +6,20 @@ from sqlalchemy.orm import Session
 from app.models.embolse import Embolse
 from app.repositories.embolse import EmbolseRepository
 
-CALENDARIO_BANASAN = {
-    1: "VE", 2: "AM", 3: "BL", 4: "AZ", 5: "RO",
-    6: "CA", 7: "NE", 8: "NA", 9: "VE", 10: "AM",
-    11: "BL", 12: "AZ", 13: "RO", 14: "CA", 15: "NE",
-    16: "NA", 17: "VE", 18: "AM", 19: "BL", 20: "AZ",
-    21: "RO", 22: "CA", 23: "NE", 24: "NA", 25: "VE",
-    26: "AM", 27: "BL", 28: "AZ", 29: "RO", 30: "CA",
-    31: "CA", 32: "NA", 33: "VE", 34: "AM", 35: "BL",
-    36: "AZ", 37: "RO", 38: "CA", 39: "NE", 40: "NA",
-    41: "VE", 42: "AM", 43: "BL", 44: "AZ", 45: "RO",
-    46: "CA", 47: "NE", 48: "NA", 49: "VE", 50: "AM",
-    51: "BL", 52: "AZ",
+CALENDARIO_EMBOLSE = {
+    1: "AM", 2: "BL", 3: "AZ", 4: "RO", 5: "CA", 6: "NE", 7: "NA", 8: "VE",
+    9: "VE", 10: "AM", 11: "BL", 12: "AZ", 13: "RO", 14: "CA", 15: "NE", 16: "NA",
+    17: "NA", 18: "VE", 19: "AM", 20: "BL", 21: "AZ", 22: "RO", 23: "CA", 24: "NE",
+    25: "NE", 26: "NA", 27: "VE", 28: "AM", 29: "BL", 30: "AZ", 31: "RO", 32: "CA",
+    33: "CA", 34: "NE", 35: "NA", 36: "VE", 37: "AM", 38: "BL", 39: "AZ", 40: "RO",
+    41: "RO", 42: "CA", 43: "NE", 44: "NA", 45: "VE", 46: "AM", 47: "BL", 48: "AZ",
+    49: "AZ", 50: "RO", 51: "CA", 52: "NE",
 }
 
 
 def _color_por_semana(fecha: date) -> str:
     semana = fecha.isocalendar()[1]
-    return CALENDARIO_BANASAN[semana]
+    return CALENDARIO_EMBOLSE[semana]
 
 
 class EmbolseService:

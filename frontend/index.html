@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BanaTrack</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container header-inner">
+      <h1 class="logo">BanaTrack</h1>
+      <nav class="nav">
+        <button class="nav-btn active" data-section="lotes">Lotes</button>
+        <button class="nav-btn" data-section="embolse">Embolse</button>
+        <button class="nav-btn" data-section="cosecha">Cosecha</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="section-lotes" class="section active">
+      <h2>Gestión de Lotes</h2>
+      <form id="form-lote" class="card form-card">
+        <h3>Nuevo Lote</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="lote-nombre">Nombre del lote</label>
+            <input type="text" id="lote-nombre" required placeholder="Ej: Lote A-1">
+          </div>
+          <div class="form-group">
+            <label for="lote-supervisor">Supervisor</label>
+            <input type="text" id="lote-supervisor" required placeholder="Nombre del supervisor">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Crear Lote</button>
+      </form>
+      <div class="card">
+        <h3>Lotes Registrados</h3>
+        <div class="table-wrapper">
+          <table id="table-lotes">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Supervisor</th>
+                <th>Activo</th>
+                <th>Creado</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-lotes"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="section-embolse" class="section">
+      <h2>Registro de Embolse</h2>
+      <form id="form-embolse" class="card form-card">
+        <h3>Nuevo Embolse</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="embolse-lote">Lote</label>
+            <select id="embolse-lote" required></select>
+          </div>
+          <div class="form-group">
+            <label for="embolse-fecha">Fecha</label>
+            <input type="date" id="embolse-fecha" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="embolse-cantidad">Cantidad</label>
+            <input type="number" id="embolse-cantidad" required min="1" placeholder="Ej: 100">
+          </div>
+          <div class="form-group">
+            <label for="embolse-observacion">Observación</label>
+            <input type="text" id="embolse-observacion" placeholder="Opcional">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Registrar Embolse</button>
+      </form>
+      <div class="card">
+        <h3>Embolses por Lote</h3>
+        <div class="filter-bar">
+          <select id="embolse-filtro-lote" required>
+            <option value="">Seleccionar lote...</option>
+          </select>
+        </div>
+        <div class="table-wrapper">
+          <table id="table-embolse">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Color Cinta</th>
+                <th>Cantidad</th>
+                <th>Observación</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-embolse"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="section-cosecha" class="section">
+      <h2>Registro de Cosecha</h2>
+      <form id="form-cosecha" class="card form-card">
+        <h3>Nueva Cosecha</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cosecha-lote">Lote</label>
+            <select id="cosecha-lote" required></select>
+          </div>
+          <div class="form-group">
+            <label for="cosecha-fecha">Fecha</label>
+            <input type="date" id="cosecha-fecha" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cosecha-cantidad">Cantidad cosechada</label>
+            <input type="number" id="cosecha-cantidad" required min="1" placeholder="Ej: 80">
+          </div>
+          <div class="form-group">
+            <label for="cosecha-observacion">Observación</label>
+            <input type="text" id="cosecha-observacion" placeholder="Opcional">
+          </div>
+        </div>
+        <div id="cosecha-info" class="info-box hidden">
+          <p><strong>Descuento:</strong> <span id="cosecha-descuento"></span></p>
+          <p><strong>Recobro:</strong> <span id="cosecha-recobro"></span></p>
+        </div>
+        <button type="submit" class="btn btn-primary">Registrar Cosecha</button>
+      </form>
+      <div class="card">
+        <h3>Cosechas por Lote</h3>
+        <div class="filter-bar">
+          <select id="cosecha-filtro-lote" required>
+            <option value="">Seleccionar lote...</option>
+          </select>
+        </div>
+        <div class="table-wrapper">
+          <table id="table-cosecha">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Color Cinta</th>
+                <th>Cantidad</th>
+                <th>Observación</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-cosecha"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

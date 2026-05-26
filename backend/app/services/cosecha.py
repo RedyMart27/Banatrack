@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.models.cosecha import Cosecha
 from app.repositories.cosecha import CosechaRepository
-from app.services.embolse import _color_por_semana
+from app.services.embolse import CALENDARIO_EMBOLSE
 
 
 class CosechaService:
@@ -13,14 +13,27 @@ class CosechaService:
         self.db = db
         self.repo = CosechaRepository(db)
 
+    @staticmethod
+    def obtener_colores_disponibles(fecha: date) -> list[str]:
+        semana = fecha.isocalendar()[1]
+        return [
+            CALENDARIO_EMBOLSE[(semana - offset - 1) % 52 + 1]
+            for offset in (10, 11, 12)
+        ]
+
     def registrar_cosecha(
         self,
         lote_id: int,
         fecha: date,
         cantidad: int,
+        color_cinta: str,
         observacion: str | None = None,
     ) -> Cosecha:
-        color_cinta = _color_por_semana(fecha)
+        colores = self.obtener_colores_disponibles(fecha)
+        if color_cinta not in colores:
+            raise ValueError(
+                f"Color '{color_cinta}' no válido. Colores disponibles: {colores}"
+            )
         return self.repo.crear(
             lote_id=lote_id,
             fecha=fecha,

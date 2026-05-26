@@ -14,6 +14,7 @@ class CosechaCreate(BaseModel):
     lote_id: int
     fecha: date
     cantidad: int
+    color_cinta: str
     observacion: str | None = None
 
 
@@ -25,8 +26,7 @@ class CosechaResponse(BaseModel):
     cantidad: int
     observacion: str | None
     created_at: datetime
-
-    model_config = {"from_attributes": True}
+    colores_disponibles: list[str]
 
 
 class DescuentoResponse(BaseModel):
@@ -40,12 +40,32 @@ class RecobroResponse(BaseModel):
 @router.post("", response_model=CosechaResponse, status_code=201)
 def registrar_cosecha(body: CosechaCreate, db: Session = Depends(get_db)):
     service = CosechaService(db)
-    return service.registrar_cosecha(
+    cosecha = service.registrar_cosecha(
         lote_id=body.lote_id,
         fecha=body.fecha,
         cantidad=body.cantidad,
+        color_cinta=body.color_cinta,
         observacion=body.observacion,
     )
+    colores = CosechaService.obtener_colores_disponibles(body.fecha)
+    return CosechaResponse(
+        id=cosecha.id,
+        lote_id=cosecha.lote_id,
+        fecha=cosecha.fecha,
+        color_cinta=cosecha.color_cinta,
+        cantidad=cosecha.cantidad,
+        observacion=cosecha.observacion,
+        created_at=cosecha.created_at,
+        colores_disponibles=colores,
+    )
+
+
+@router.get("/colores-disponibles")
+def colores_disponibles(
+    fecha: date = Query(...), db: Session = Depends(get_db)
+):
+    colores = CosechaService.obtener_colores_disponibles(fecha)
+    return {"colores": colores}
 
 
 @router.get("/{lote_id}", response_model=list[CosechaResponse])
