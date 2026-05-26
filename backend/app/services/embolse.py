@@ -51,6 +51,16 @@ class EmbolseService:
         )
         return list(self.db.scalars(stmt).all())
 
+    def actualizar_embolse(
+        self, embolse_id: int, cantidad: int, observacion: str | None = None
+    ) -> Embolse | None:
+        return self.repo.actualizar(
+            embolse_id, cantidad=cantidad, observacion=observacion
+        )
+
+    def eliminar_embolse(self, embolse_id: int) -> bool:
+        return self.repo.eliminar(embolse_id)
+
     def obtener_total_embolse_por_fecha(self, lote_id: int, fecha: date) -> int:
         stmt = (
             select(func.coalesce(func.sum(Embolse.cantidad), 0))

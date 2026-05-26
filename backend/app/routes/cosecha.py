@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -27,6 +27,11 @@ class CosechaResponse(BaseModel):
     observacion: str | None
     created_at: datetime
     colores_disponibles: list[str]
+
+
+class CosechaUpdate(BaseModel):
+    cantidad: int
+    observacion: str | None = None
 
 
 class CosechaListResponse(BaseModel):
@@ -76,6 +81,28 @@ def colores_disponibles(
 ):
     colores = CosechaService.obtener_colores_disponibles(fecha)
     return {"colores": colores}
+
+
+@router.put("/{cosecha_id}", response_model=CosechaListResponse)
+def actualizar_cosecha(
+    cosecha_id: int, body: CosechaUpdate, db: Session = Depends(get_db)
+):
+    service = CosechaService(db)
+    cosecha = service.actualizar_cosecha(
+        cosecha_id=cosecha_id,
+        cantidad=body.cantidad,
+        observacion=body.observacion,
+    )
+    if cosecha is None:
+        raise HTTPException(status_code=404, detail="Cosecha no encontrada")
+    return cosecha
+
+
+@router.delete("/{cosecha_id}", status_code=204)
+def eliminar_cosecha(cosecha_id: int, db: Session = Depends(get_db)):
+    service = CosechaService(db)
+    if not service.eliminar_cosecha(cosecha_id):
+        raise HTTPException(status_code=404, detail="Cosecha no encontrada")
 
 
 @router.get("/{lote_id}", response_model=list[CosechaListResponse])

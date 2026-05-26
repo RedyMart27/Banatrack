@@ -28,6 +28,16 @@ class BaseRepository(Generic[ModelType]):
         stmt = select(self.model).where(self.model.id == id)
         return self.db.scalar(stmt)
 
+    def actualizar(self, id: int, **kwargs) -> ModelType | None:
+        obj = self.obtener_por_id(id)
+        if obj is None:
+            return None
+        for key, value in kwargs.items():
+            setattr(obj, key, value)
+        self.db.commit()
+        self.db.refresh(obj)
+        return obj
+
     def eliminar(self, id: int) -> bool:
         obj = self.obtener_por_id(id)
         if obj is None:

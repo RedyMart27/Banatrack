@@ -171,7 +171,7 @@ async function loadEmbolseTable(lote_id) {
     const rows = await apiFetch(`/embolse/${lote_id}`);
     if (rows.length === 0) {
       tbodyEmbolse.innerHTML =
-        '<tr><td colspan="5" class="empty-msg">No hay embolses para este lote</td></tr>';
+        '<tr><td colspan="6" class="empty-msg">No hay embolses para este lote</td></tr>';
       return;
     }
     tbodyEmbolse.innerHTML = rows
@@ -183,12 +183,45 @@ async function loadEmbolseTable(lote_id) {
         <td><span class="color-badge" style="background:${colorHex(r.color_cinta)};display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:middle;margin-right:6px;border:1px solid var(--border)"></span>${esc(r.color_cinta)}</td>
         <td>${r.cantidad}</td>
         <td>${esc(r.observacion) || '—'}</td>
+        <td>
+          <button class="btn-icon edit" data-embolse-id="${r.id}" data-cantidad="${r.cantidad}" data-observacion="${esc(r.observacion) || ''}" title="Editar">&#9998;</button>
+          <button class="btn-icon delete" data-embolse-id="${r.id}" title="Eliminar">&#128465;</button>
+        </td>
       </tr>`
       )
       .join('');
+    attachEmbolseActionListeners();
   } catch (err) {
     showToast('Error al cargar embolses: ' + err.message, true);
   }
+}
+
+function attachEmbolseActionListeners() {
+  document.querySelectorAll('#tbody-embolse .btn-icon.edit').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.embolseId;
+      const cantidad = btn.dataset.cantidad;
+      const observacion = btn.dataset.observacion;
+      document.getElementById('embolse-edit-id').value = id;
+      document.getElementById('embolse-edit-cantidad').value = cantidad;
+      document.getElementById('embolse-edit-observacion').value = observacion;
+      document.getElementById('modal-embolse-edit').classList.remove('hidden');
+    });
+  });
+  document.querySelectorAll('#tbody-embolse .btn-icon.delete').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.embolseId;
+      if (!confirm('¿Eliminar este embolse?')) return;
+      try {
+        await apiFetch(`/embolse/${id}`, { method: 'DELETE' });
+        showToast('Embolse eliminado');
+        const lote_id = parseInt(embolseFiltro.value);
+        if (lote_id) loadEmbolseTable(lote_id);
+      } catch (err) {
+        showToast('Error al eliminar embolse: ' + err.message, true);
+      }
+    });
+  });
 }
 
 /* ---- Cosecha ---- */
@@ -312,7 +345,7 @@ async function loadCosechaTable(lote_id) {
     const rows = await apiFetch(`/cosecha/${lote_id}`);
     if (rows.length === 0) {
       tbodyCosecha.innerHTML =
-        '<tr><td colspan="5" class="empty-msg">No hay cosechas para este lote</td></tr>';
+        '<tr><td colspan="6" class="empty-msg">No hay cosechas para este lote</td></tr>';
       return;
     }
     tbodyCosecha.innerHTML = rows
@@ -324,13 +357,98 @@ async function loadCosechaTable(lote_id) {
         <td><span class="color-badge" style="background:${colorHex(r.color_cinta)};display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:middle;margin-right:6px;border:1px solid var(--border)"></span>${esc(r.color_cinta)}</td>
         <td>${r.cantidad}</td>
         <td>${esc(r.observacion) || '—'}</td>
+        <td>
+          <button class="btn-icon edit" data-cosecha-id="${r.id}" data-cantidad="${r.cantidad}" data-observacion="${esc(r.observacion) || ''}" title="Editar">&#9998;</button>
+          <button class="btn-icon delete" data-cosecha-id="${r.id}" title="Eliminar">&#128465;</button>
+        </td>
       </tr>`
       )
       .join('');
+    attachCosechaActionListeners();
   } catch (err) {
     showToast('Error al cargar cosechas: ' + err.message, true);
   }
 }
+
+function attachCosechaActionListeners() {
+  document.querySelectorAll('#tbody-cosecha .btn-icon.edit').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.cosechaId;
+      const cantidad = btn.dataset.cantidad;
+      const observacion = btn.dataset.observacion;
+      document.getElementById('cosecha-edit-id').value = id;
+      document.getElementById('cosecha-edit-cantidad').value = cantidad;
+      document.getElementById('cosecha-edit-observacion').value = observacion;
+      document.getElementById('modal-cosecha-edit').classList.remove('hidden');
+    });
+  });
+  document.querySelectorAll('#tbody-cosecha .btn-icon.delete').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.cosechaId;
+      if (!confirm('¿Eliminar esta cosecha?')) return;
+      try {
+        await apiFetch(`/cosecha/${id}`, { method: 'DELETE' });
+        showToast('Cosecha eliminada');
+        const lote_id = parseInt(cosechaFiltro.value);
+        if (lote_id) loadCosechaTable(lote_id);
+      } catch (err) {
+        showToast('Error al eliminar cosecha: ' + err.message, true);
+      }
+    });
+  });
+}
+
+/* ---- Edit Modals ---- */
+function closeModal(id) {
+  document.getElementById(id).classList.add('hidden');
+}
+
+document.getElementById('embolse-edit-cancel').addEventListener('click', () => closeModal('modal-embolse-edit'));
+document.getElementById('cosecha-edit-cancel').addEventListener('click', () => closeModal('modal-cosecha-edit'));
+
+document.querySelectorAll('.modal-backdrop').forEach((bd) => {
+  bd.addEventListener('click', () => {
+    bd.parentElement.classList.add('hidden');
+  });
+});
+
+document.getElementById('form-embolse-edit').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = parseInt(document.getElementById('embolse-edit-id').value);
+  const cantidad = parseInt(document.getElementById('embolse-edit-cantidad').value);
+  const observacion = document.getElementById('embolse-edit-observacion').value.trim() || null;
+  try {
+    await apiFetch(`/embolse/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ cantidad, observacion }),
+    });
+    showToast('Embolse actualizado');
+    closeModal('modal-embolse-edit');
+    const lote_id = parseInt(embolseFiltro.value);
+    if (lote_id) loadEmbolseTable(lote_id);
+  } catch (err) {
+    showToast('Error al actualizar embolse: ' + err.message, true);
+  }
+});
+
+document.getElementById('form-cosecha-edit').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = parseInt(document.getElementById('cosecha-edit-id').value);
+  const cantidad = parseInt(document.getElementById('cosecha-edit-cantidad').value);
+  const observacion = document.getElementById('cosecha-edit-observacion').value.trim() || null;
+  try {
+    await apiFetch(`/cosecha/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ cantidad, observacion }),
+    });
+    showToast('Cosecha actualizada');
+    closeModal('modal-cosecha-edit');
+    const lote_id = parseInt(cosechaFiltro.value);
+    if (lote_id) loadCosechaTable(lote_id);
+  } catch (err) {
+    showToast('Error al actualizar cosecha: ' + err.message, true);
+  }
+});
 
 /* ---- Helpers ---- */
 function esc(s) {
@@ -456,13 +574,43 @@ async function loadInventario() {
   }
 }
 
+/* ---- Alertas de Recobro ---- */
+async function loadAlertas() {
+  const container = document.getElementById('alertas-container');
+  try {
+    const data = await apiFetch('/dashboard/alertas');
+    if (data.length === 0) {
+      container.innerHTML = '<p class="empty-msg">No hay alertas de recobro</p>';
+      return;
+    }
+    container.innerHTML = data
+      .map(
+        (a) => `
+      <div class="alerta alerta-${a.nivel_alerta === 'crítico' ? 'critico' : 'advertencia'}">
+        <div class="alerta-header">
+          <span class="alerta-icon">${a.nivel_alerta === 'crítico' ? '&#9888;' : '&#9888;'}</span>
+          <span class="alerta-lote">${esc(a.lote_nombre)}</span>
+          <span class="alerta-nivel">${a.nivel_alerta.toUpperCase()}</span>
+        </div>
+        <div class="alerta-body">
+          <span>Recobro: <strong>${a.recobro}%</strong></span>
+        </div>
+      </div>`
+      )
+      .join('');
+  } catch (err) {
+    container.innerHTML = '<p class="empty-msg">Error al cargar alertas</p>';
+    showToast('Error al cargar alertas: ' + err.message, true);
+  }
+}
+
 /* ---- Init ---- */
 async function init() {
   document.getElementById('embolse-filtro-lote').dataset.placeholder =
     'Seleccionar lote para ver embolses...';
   document.getElementById('cosecha-filtro-lote').dataset.placeholder =
     'Seleccionar lote para ver cosechas...';
-  await Promise.all([loadLoteSelects(), loadDashboard(), loadInventario()]);
+  await Promise.all([loadLoteSelects(), loadDashboard(), loadInventario(), loadAlertas()]);
   await loadLotesTable();
 }
 

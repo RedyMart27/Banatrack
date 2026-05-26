@@ -60,6 +60,16 @@ class CosechaService:
         )
         return list(self.db.scalars(stmt).all())
 
+    def actualizar_cosecha(
+        self, cosecha_id: int, cantidad: int, observacion: str | None = None
+    ) -> Cosecha | None:
+        return self.repo.actualizar(
+            cosecha_id, cantidad=cantidad, observacion=observacion
+        )
+
+    def eliminar_cosecha(self, cosecha_id: int) -> bool:
+        return self.repo.eliminar(cosecha_id)
+
     def calcular_descuento(self, lote_id: int, fecha: date) -> int | None:
         embolse_total = self._total_embolse(lote_id, fecha)
         if embolse_total == 0:
