@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine
 from app import models
-from app.routes import lotes, embolse, cosecha
+from app.routes import lotes, embolse, cosecha, dashboard
 
 # Crea las tablas en la base de datos si no existen
 models.Lote.metadata.create_all(bind=engine)
@@ -23,6 +23,7 @@ app.add_middleware(
 app.include_router(lotes.router)
 app.include_router(embolse.router)
 app.include_router(cosecha.router)
+app.include_router(dashboard.router)
 
 
 @app.get("/")
