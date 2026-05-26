@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 from sqlalchemy import select, func
 from sqlalchemy.orm import Session
+from app.models.cosecha import Cosecha
 from app.models.embolse import Embolse
 from app.models.lote import Lote
 from app.services.cosecha import CosechaService
@@ -77,3 +78,36 @@ class DashboardService:
             })
 
         return semanas
+
+    def obtener_alertas(self, fecha: date) -> list[dict]:
+        lotes = self.db.execute(
+            select(Lote.id, Lote.nombre).where(Lote.activo == True)
+        ).all()
+
+        alertas = []
+        for lote in lotes:
+            total_embolse = self.db.scalar(
+                select(func.coalesce(func.sum(Embolse.cantidad), 0))
+                .where(Embolse.lote_id == lote.id, Embolse.fecha == fecha)
+            ) or 0
+
+            total_cosecha = self.db.scalar(
+                select(func.coalesce(func.sum(Cosecha.cantidad), 0))
+                .where(Cosecha.lote_id == lote.id, Cosecha.fecha == fecha)
+            ) or 0
+
+            if total_embolse == 0:
+                continue
+
+            recobro = total_cosecha / total_embolse
+
+            if recobro < 0.85:
+                nivel = "crítico" if recobro < 0.75 else "advertencia"
+                alertas.append({
+                    "lote_id": lote.id,
+                    "lote_nombre": lote.nombre,
+                    "recobro": round(recobro * 100, 2),
+                    "nivel_alerta": nivel,
+                })
+
+        return alertas
