@@ -204,6 +204,7 @@ document.getElementById('cosecha-fecha').value = todayStr();
 let cosechaLote = document.getElementById('cosecha-lote');
 let cosechaFecha = document.getElementById('cosecha-fecha');
 let cosechaCantidad = document.getElementById('cosecha-cantidad');
+let cosechaColorSelected = null;
 
 async function actualizarDescuentoRecobro() {
   const lote_id = parseInt(cosechaLote.value);
@@ -229,28 +230,72 @@ async function actualizarDescuentoRecobro() {
   }
 }
 
-cosechaLote.addEventListener('change', actualizarDescuentoRecobro);
-cosechaFecha.addEventListener('change', actualizarDescuentoRecobro);
+async function loadColoresDisponibles() {
+  const lote_id = parseInt(cosechaLote.value);
+  const fecha = cosechaFecha.value;
+  const container = document.getElementById('cosecha-colores-container');
+  const btnsContainer = document.getElementById('cosecha-colores-btns');
+  if (!lote_id || !fecha) {
+    container.style.display = 'none';
+    return;
+  }
+  try {
+    const data = await apiFetch(`/cosecha/colores-disponibles?fecha=${fecha}`);
+    btnsContainer.innerHTML = data.colores
+      .map(
+        (c) =>
+          `<button type="button" class="color-btn" data-color="${c}" style="background:${colorHex(c)};border:3px solid transparent;width:70px;height:70px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;margin:6px;font-weight:bold;font-size:11px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.6)">${nombreColor(c)}</button>`
+      )
+      .join('');
+    container.style.display = 'block';
+    cosechaColorSelected = null;
+    btnsContainer.querySelectorAll('.color-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        btnsContainer.querySelectorAll('.color-btn').forEach((b) => (b.style.borderColor = 'transparent'));
+        btn.style.borderColor = '#000';
+        cosechaColorSelected = btn.dataset.color;
+      });
+    });
+  } catch (err) {
+    container.style.display = 'none';
+    showToast('Error al cargar colores: ' + err.message, true);
+  }
+}
+
+cosechaLote.addEventListener('change', () => {
+  actualizarDescuentoRecobro();
+  loadColoresDisponibles();
+});
+cosechaFecha.addEventListener('change', () => {
+  actualizarDescuentoRecobro();
+  loadColoresDisponibles();
+});
 
 formCosecha.addEventListener('submit', async (e) => {
   e.preventDefault();
   const lote_id = parseInt(cosechaLote.value);
   const fecha = cosechaFecha.value;
   const cantidad = parseInt(cosechaCantidad.value);
+  const color_cinta = cosechaColorSelected;
   const observacion =
     document.getElementById('cosecha-observacion').value.trim() || null;
-  if (!lote_id || !fecha || !cantidad) return;
+  if (!lote_id || !fecha || !cantidad || !color_cinta) {
+    if (!color_cinta) showToast('Debe seleccionar un color de cinta', true);
+    return;
+  }
   try {
     await apiFetch('/cosecha', {
       method: 'POST',
-      body: JSON.stringify({ lote_id, fecha, cantidad, observacion }),
+      body: JSON.stringify({ lote_id, fecha, cantidad, color_cinta, observacion }),
     });
     showToast('Cosecha registrada exitosamente');
     formCosecha.reset();
     document.getElementById('cosecha-fecha').value = todayStr();
-    cosechaInfo.classList.add('hidden');
+    document.getElementById('cosecha-colores-container').style.display = 'none';
+    cosechaColorSelected = null;
     cosechaFiltro.value = lote_id;
     loadCosechaTable(lote_id);
+    await actualizarDescuentoRecobro();
   } catch (err) {
     showToast('Error al registrar cosecha: ' + err.message, true);
   }
