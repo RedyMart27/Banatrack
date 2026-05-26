@@ -197,31 +197,34 @@ async function loadEmbolseTable(lote_id) {
 }
 
 function attachEmbolseActionListeners() {
-  document.querySelectorAll('#tbody-embolse .btn-icon.edit').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const id = btn.dataset.embolseId;
-      const cantidad = btn.dataset.cantidad;
-      const observacion = btn.dataset.observacion;
-      document.getElementById('embolse-edit-id').value = id;
-      document.getElementById('embolse-edit-cantidad').value = cantidad;
-      document.getElementById('embolse-edit-observacion').value = observacion;
+  const tbody = document.getElementById('tbody-embolse');
+  const handler = (e) => {
+    const btn = e.target.closest('.btn-icon');
+    if (!btn) return;
+    if (btn.classList.contains('edit')) {
+      document.getElementById('embolse-edit-id').value = btn.dataset.embolseId;
+      document.getElementById('embolse-edit-cantidad').value = btn.dataset.cantidad;
+      document.getElementById('embolse-edit-observacion').value = btn.dataset.observacion;
       document.getElementById('modal-embolse-edit').classList.remove('hidden');
-    });
-  });
-  document.querySelectorAll('#tbody-embolse .btn-icon.delete').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      const id = btn.dataset.embolseId;
-      if (!confirm('¿Eliminar este embolse?')) return;
-      try {
-        await apiFetch(`/embolse/${id}`, { method: 'DELETE' });
-        showToast('Embolse eliminado');
-        const lote_id = parseInt(embolseFiltro.value);
-        if (lote_id) loadEmbolseTable(lote_id);
-      } catch (err) {
-        showToast('Error al eliminar embolse: ' + err.message, true);
-      }
-    });
-  });
+    } else if (btn.classList.contains('delete')) {
+      eliminarEmbolse(btn.dataset.embolseId);
+    }
+  };
+  tbody.removeEventListener('click', tbody._embolseHandler);
+  tbody._embolseHandler = handler;
+  tbody.addEventListener('click', handler);
+}
+
+async function eliminarEmbolse(id) {
+  if (!confirm('¿Eliminar este embolse?')) return;
+  try {
+    await apiFetch(`/embolse/${id}`, { method: 'DELETE' });
+    showToast('Embolse eliminado');
+    const lote_id = parseInt(embolseFiltro.value);
+    if (lote_id) loadEmbolseTable(lote_id);
+  } catch (err) {
+    showToast('Error al eliminar embolse: ' + err.message, true);
+  }
 }
 
 /* ---- Cosecha ---- */
@@ -371,31 +374,34 @@ async function loadCosechaTable(lote_id) {
 }
 
 function attachCosechaActionListeners() {
-  document.querySelectorAll('#tbody-cosecha .btn-icon.edit').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const id = btn.dataset.cosechaId;
-      const cantidad = btn.dataset.cantidad;
-      const observacion = btn.dataset.observacion;
-      document.getElementById('cosecha-edit-id').value = id;
-      document.getElementById('cosecha-edit-cantidad').value = cantidad;
-      document.getElementById('cosecha-edit-observacion').value = observacion;
+  const tbody = document.getElementById('tbody-cosecha');
+  const handler = (e) => {
+    const btn = e.target.closest('.btn-icon');
+    if (!btn) return;
+    if (btn.classList.contains('edit')) {
+      document.getElementById('cosecha-edit-id').value = btn.dataset.cosechaId;
+      document.getElementById('cosecha-edit-cantidad').value = btn.dataset.cantidad;
+      document.getElementById('cosecha-edit-observacion').value = btn.dataset.observacion;
       document.getElementById('modal-cosecha-edit').classList.remove('hidden');
-    });
-  });
-  document.querySelectorAll('#tbody-cosecha .btn-icon.delete').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      const id = btn.dataset.cosechaId;
-      if (!confirm('¿Eliminar esta cosecha?')) return;
-      try {
-        await apiFetch(`/cosecha/${id}`, { method: 'DELETE' });
-        showToast('Cosecha eliminada');
-        const lote_id = parseInt(cosechaFiltro.value);
-        if (lote_id) loadCosechaTable(lote_id);
-      } catch (err) {
-        showToast('Error al eliminar cosecha: ' + err.message, true);
-      }
-    });
-  });
+    } else if (btn.classList.contains('delete')) {
+      eliminarCosecha(btn.dataset.cosechaId);
+    }
+  };
+  tbody.removeEventListener('click', tbody._cosechaHandler);
+  tbody._cosechaHandler = handler;
+  tbody.addEventListener('click', handler);
+}
+
+async function eliminarCosecha(id) {
+  if (!confirm('¿Eliminar esta cosecha?')) return;
+  try {
+    await apiFetch(`/cosecha/${id}`, { method: 'DELETE' });
+    showToast('Cosecha eliminada');
+    const lote_id = parseInt(cosechaFiltro.value);
+    if (lote_id) loadCosechaTable(lote_id);
+  } catch (err) {
+    showToast('Error al eliminar cosecha: ' + err.message, true);
+  }
 }
 
 /* ---- Edit Modals ---- */
@@ -412,8 +418,7 @@ document.querySelectorAll('.modal-backdrop').forEach((bd) => {
   });
 });
 
-document.getElementById('form-embolse-edit').addEventListener('submit', async (e) => {
-  e.preventDefault();
+document.getElementById('embolse-edit-save').addEventListener('click', async () => {
   const id = parseInt(document.getElementById('embolse-edit-id').value);
   const cantidad = parseInt(document.getElementById('embolse-edit-cantidad').value);
   const observacion = document.getElementById('embolse-edit-observacion').value.trim() || null;
@@ -431,8 +436,7 @@ document.getElementById('form-embolse-edit').addEventListener('submit', async (e
   }
 });
 
-document.getElementById('form-cosecha-edit').addEventListener('submit', async (e) => {
-  e.preventDefault();
+document.getElementById('cosecha-edit-save').addEventListener('click', async () => {
   const id = parseInt(document.getElementById('cosecha-edit-id').value);
   const cantidad = parseInt(document.getElementById('cosecha-edit-cantidad').value);
   const observacion = document.getElementById('cosecha-edit-observacion').value.trim() || null;
