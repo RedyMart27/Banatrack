@@ -424,13 +424,45 @@ async function loadDashboard() {
   }
 }
 
+/* ---- Inventario Proyectado ---- */
+async function loadInventario() {
+  const tbody = document.getElementById('tbody-inventario');
+  try {
+    const data = await apiFetch('/dashboard/inventario');
+    if (data.length === 0) {
+      tbody.innerHTML =
+        '<tr><td colspan="3" class="empty-msg">Sin datos de inventario proyectado</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data
+      .map(
+        (s) => `
+      ${s.colores
+        .map(
+          (c) => `
+        <tr>
+          <td>Semana ${s.semana}</td>
+          <td><span class="color-dot" style="background:${colorHex(c.color)}"></span> ${nombreColor(c.color)}</td>
+          <td>${c.total_embolse}</td>
+        </tr>`
+        )
+        .join('')}`
+      )
+      .join('');
+  } catch (err) {
+    tbody.innerHTML =
+      '<tr><td colspan="3" class="empty-msg">Error al cargar inventario proyectado</td></tr>';
+    showToast('Error al cargar inventario proyectado: ' + err.message, true);
+  }
+}
+
 /* ---- Init ---- */
 async function init() {
   document.getElementById('embolse-filtro-lote').dataset.placeholder =
     'Seleccionar lote para ver embolses...';
   document.getElementById('cosecha-filtro-lote').dataset.placeholder =
     'Seleccionar lote para ver cosechas...';
-  await Promise.all([loadLoteSelects(), loadDashboard()]);
+  await Promise.all([loadLoteSelects(), loadDashboard(), loadInventario()]);
   await loadLotesTable();
 }
 
