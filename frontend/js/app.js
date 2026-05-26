@@ -15,6 +15,12 @@ function todayStr() {
   return new Date().toISOString().split('T')[0];
 }
 
+function formatDateColombia(isoDate) {
+  const [y, m, d] = isoDate.split('-');
+  const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  return `${parseInt(d)} de ${meses[parseInt(m)-1]} de ${y}`;
+}
+
 async function apiFetch(path, options = {}) {
   const url = `${API}${path}`;
   const config = {
@@ -32,6 +38,7 @@ async function apiFetch(path, options = {}) {
 /* ---- Navigation ---- */
 const navBtns = document.querySelectorAll('.nav-btn');
 const sections = {
+  inicio: document.getElementById('section-inicio'),
   lotes: document.getElementById('section-lotes'),
   embolse: document.getElementById('section-embolse'),
   cosecha: document.getElementById('section-cosecha'),
@@ -311,13 +318,74 @@ function colorHex(code) {
   return map[code?.toUpperCase()] || '#6b7280';
 }
 
+function nombreColor(code) {
+  const map = {
+    BL: 'Blanco',
+    AZ: 'Azul',
+    RO: 'Rojo',
+    CA: 'Cafe',
+    NE: 'Negro',
+    NA: 'Naranja',
+    VE: 'Verde',
+    AM: 'Amarillo',
+  };
+  return map[code?.toUpperCase()] || code || '—';
+}
+
+/* ---- Dashboard / Inicio ---- */
+async function loadDashboard() {
+  try {
+    const data = await apiFetch('/dashboard/hoy');
+    document.getElementById('inicio-fecha').textContent =
+      formatDateColombia(data.fecha_consultada);
+    document.getElementById('inicio-semana').textContent = data.numero_semana;
+    const embDot = document.getElementById('inicio-embolse-dot');
+    embDot.style.background = colorHex(data.color_embolse_hoy);
+    document.getElementById('inicio-embolse-label').textContent =
+      nombreColor(data.color_embolse_hoy);
+    const coloresSpan = document.getElementById('inicio-cosecha-colores');
+    coloresSpan.innerHTML = data.colores_cosecha_hoy
+      .map(
+        (c) =>
+          `<span class="color-dot" style="background:${colorHex(c)}"></span> ${nombreColor(c)}`
+      )
+      .join(', ');
+    const container = document.getElementById('inicio-detalle-cosecha');
+    container.innerHTML = data.detalle_cosecha
+      .filter((d) => d.lotes.length > 0)
+      .map(
+        (d) => `
+      <div class="card">
+        <h3><span class="color-dot" style="background:${colorHex(d.color)}"></span> Cosecha Color: ${nombreColor(d.color)}</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Lote</th><th>Cantidad</th></tr>
+            </thead>
+            <tbody>
+              ${d.lotes.map((l) => `<tr><td>${esc(l.lote_nombre)}</td><td>${l.total_embolse}</td></tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>`
+      )
+      .join('');
+    if (container.innerHTML === '') {
+      container.innerHTML =
+        '<div class="card"><p class="empty-msg">No hay cosecha programada para hoy</p></div>';
+    }
+  } catch (err) {
+    showToast('Error al cargar dashboard: ' + err.message, true);
+  }
+}
+
 /* ---- Init ---- */
 async function init() {
   document.getElementById('embolse-filtro-lote').dataset.placeholder =
     'Seleccionar lote para ver embolses...';
   document.getElementById('cosecha-filtro-lote').dataset.placeholder =
     'Seleccionar lote para ver cosechas...';
-  await loadLoteSelects();
+  await Promise.all([loadLoteSelects(), loadDashboard()]);
   await loadLotesTable();
 }
 

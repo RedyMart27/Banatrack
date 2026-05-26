@@ -277,6 +277,17 @@ tr:hover td {
   max-width: 320px;
 }
 
+/* Color dot */
+.color-dot {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 4px;
+  border: 1px solid var(--border);
+}
+
 /* Toast */
 .toast {
   position: fixed;
