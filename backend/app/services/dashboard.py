@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 from app.models.embolse import Embolse
@@ -48,3 +48,32 @@ class DashboardService:
             "colores_cosecha_hoy": colores_cosecha,
             "detalle_cosecha": detalle,
         }
+
+    def obtener_inventario_proyectado(self, fecha: date) -> list[dict]:
+        days_ahead = 0 - fecha.weekday()
+        monday = fecha + timedelta(days=days_ahead)
+
+        semanas = []
+        for i in range(4):
+            week_monday = monday + timedelta(weeks=i)
+            semana_num = week_monday.isocalendar()[1]
+            colores = CosechaService.obtener_colores_disponibles(week_monday)
+
+            detalle_colores = []
+            for color in colores:
+                stmt = (
+                    select(func.coalesce(func.sum(Embolse.cantidad), 0))
+                    .where(Embolse.color_cinta == color)
+                )
+                total = self.db.scalar(stmt) or 0
+                detalle_colores.append({
+                    "color": color,
+                    "total_embolse": total,
+                })
+
+            semanas.append({
+                "semana": semana_num,
+                "colores": detalle_colores,
+            })
+
+        return semanas

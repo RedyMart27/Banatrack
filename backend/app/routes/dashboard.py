@@ -17,3 +17,13 @@ def resumen_hoy(
         fecha = date.today()
     service = DashboardService(db)
     return service.obtener_resumen_hoy(fecha)
+
+
+@router.get("/inventario")
+def inventario_proyectado(
+    fecha: date = Query(default=None), db: Session = Depends(get_db)
+):
+    if fecha is None:
+        fecha = date.today()
+    service = DashboardService(db)
+    return service.obtener_inventario_proyectado(fecha)
