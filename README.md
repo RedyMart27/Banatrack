@@ -126,7 +126,7 @@ banatrack/
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/tu-usuario/banatrack.git
+git clone https://github.com/RedyMart27/Banatrack.git
 cd banatrack
 
 # Crear y activar entorno virtual
