@@ -218,7 +218,7 @@ curl http://localhost:8000/dashboard/hoy
 | Dashboard - Inicio |  <img width="726" height="966" alt="Screenshot 2026-06-13 183814" src="https://github.com/user-attachments/assets/c9bc2aff-364d-41a7-b9bf-5efe89dc9689" /> |
 | Gestión de Lotes   | <img width="1096" height="947" alt="Screenshot 2026-06-13 184008" src="https://github.com/user-attachments/assets/c835f1f2-3cb7-4c1c-abf7-3875598db57a" /> |
 | Registro Embolse   | <img width="1187" height="742" alt="Screenshot 2026-06-13 184056" src="https://github.com/user-attachments/assets/ec57dc4e-8db3-4288-b57e-4724b0925f95" /> |
-| Registro Cosecha   | <img width="1187" height="742" alt="Screenshot 2026-06-13 184056" src="https://github.com/user-attachments/assets/ec57dc4e-8db3-4288-b57e-4724b0925f95" /> |
+| Registro Cosecha   | <img width="1146" height="895" alt="Screenshot 2026-06-13 184115" src="https://github.com/user-attachments/assets/fd59488b-aa99-47a3-a35b-7b12face39c5" /> |
 | Alertas            | <img width="1146" height="895" alt="Screenshot 2026-06-13 184115" src="https://github.com/user-attachments/assets/fd59488b-aa99-47a3-a35b-7b12face39c5" /> |
 
 ## Estado del Proyecto
