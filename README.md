@@ -215,11 +215,11 @@ curl http://localhost:8000/dashboard/hoy
 
 | Vista              | Imagen                              |
 |--------------------|-------------------------------------|
-| Dashboard - Inicio | [SCREENSHOT - Vista resumen del día] |
-| Gestión de Lotes   | [SCREENSHOT - Listado y creación]    |
-| Registro Embolse   | [SCREENSHOT - Formulario y tabla]    |
-| Registro Cosecha   | [SCREENSHOT - Selector de color]     |
-| Alertas            | [SCREENSHOT - Alertas de recobro]    |
+| Dashboard - Inicio | <img width="1096" height="947" alt="Screenshot 2026-06-13 184008" src="https://github.com/user-attachments/assets/1cb4269e-c2a0-4538-b081-b3fade28ebf3" /> |
+| Gestión de Lotes   | <img width="726" height="966" alt="Screenshot 2026-06-13 183814" src="https://github.com/user-attachments/assets/c9bc2aff-364d-41a7-b9bf-5efe89dc9689" /> |
+| Registro Embolse   | <img width="1163" height="693" alt="Screenshot 2026-06-13 184022" src="https://github.com/user-attachments/assets/1f58d35f-c788-4fc7-a314-be4c4ee8b7e5" /> |
+| Registro Cosecha   | <img width="1187" height="742" alt="Screenshot 2026-06-13 184056" src="https://github.com/user-attachments/assets/ec57dc4e-8db3-4288-b57e-4724b0925f95" /> |
+| Alertas            | <img width="1146" height="895" alt="Screenshot 2026-06-13 184115" src="https://github.com/user-attachments/assets/fd59488b-aa99-47a3-a35b-7b12face39c5" /> |
 
 ## Estado del Proyecto
 
